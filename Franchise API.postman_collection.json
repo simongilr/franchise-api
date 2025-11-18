@@ -8,12 +8,25 @@
 	"item": [
 		{
 			"name": "franchise",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let jsonData = pm.response.json();",
+							"pm.environment.set(\"franchiseId\", jsonData.id);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"request": {
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"name\": \"Franquicia Demo\",\n  \"branches\": []\n}\n",
+					"raw": "{\n  \"name\": \"Franquicia prueba 1\",\n  \"branches\": []\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -37,12 +50,27 @@
 		},
 		{
 			"name": "branch",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let jsonData = pm.response.json();",
+							"// Guardamos el primer branch de la lista",
+							"pm.environment.set(\"branchId\", jsonData.branches[0].id);",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"request": {
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"name\": \"Sucursal Bogotá\",\n  \"products\": []\n}\n",
+					"raw": "{\n  \"name\": \"Sucursal Medellin\",\n  \"products\": []\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -50,7 +78,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/api/franchise/1/branch",
+					"raw": "http://localhost:8080/api/franchise/{{franchiseId}}/branch",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -59,7 +87,7 @@
 					"path": [
 						"api",
 						"franchise",
-						"1",
+						"{{franchiseId}}",
 						"branch"
 					]
 				}
@@ -68,12 +96,40 @@
 		},
 		{
 			"name": "product",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let jsonData = pm.response.json();",
+							"",
+							"// Usamos la variable branchId que ya guardaste",
+							"let branchId = pm.environment.get(\"branchId\");",
+							"",
+							"// Buscamos el branch correcto",
+							"let branch = jsonData.branches.find(b => b.id == branchId);",
+							"",
+							"if (branch && branch.products.length > 0) {",
+							"    // Tomamos siempre el último producto agregado",
+							"    let lastProduct = branch.products[branch.products.length - 1];",
+							"    pm.environment.set(\"productId\", lastProduct.id);",
+							"    console.log(\"Producto ID guardado:\", lastProduct.id);",
+							"} else {",
+							"    console.log(\"No hay productos en este branch.\");",
+							"}",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"request": {
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"name\": \"Hamburguesa\",\n  \"stock\": 10,\n  \"price\": 25000\n}\n",
+					"raw": "{\n  \"name\": \"POLLO\",\n  \"stock\": 10,\n  \"price\": 25000\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -81,7 +137,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/api/franchise/1/branch/1/product",
+					"raw": "http://localhost:8080/api/franchise/{{franchiseId}}/branch/{{branchId}}/product",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -90,9 +146,9 @@
 					"path": [
 						"api",
 						"franchise",
-						"1",
+						"{{franchiseId}}",
 						"branch",
-						"1",
+						"{{branchId}}",
 						"product"
 					]
 				}
@@ -114,7 +170,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/api/franchise/1/branch/1/product/1\n",
+					"raw": "http://localhost:8080/api/franchise/{{franchiseId}}/branch/{{branchId}}/product/{{productId}}\n",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -123,11 +179,11 @@
 					"path": [
 						"api",
 						"franchise",
-						"1",
+						"{{franchiseId}}",
 						"branch",
-						"1",
+						"{{branchId}}",
 						"product",
-						"1\n"
+						"{{productId}}\n"
 					]
 				}
 			},
@@ -148,7 +204,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/api/franchise/1/branch/1/product/1/stock/30",
+					"raw": "http://localhost:8080/api/franchise/{{franchiseId}}/branch/{{branchId}}/product/{{productId}}/stock/{{stock}}",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -157,13 +213,13 @@
 					"path": [
 						"api",
 						"franchise",
-						"1",
+						"{{franchiseId}}",
 						"branch",
-						"1",
+						"{{branchId}}",
 						"product",
-						"1",
+						"{{productId}}",
 						"stock",
-						"30"
+						"{{stock}}"
 					]
 				}
 			},
@@ -187,7 +243,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/api/franchise/1/top-products",
+					"raw": "http://localhost:8080/api/franchise/{{franchiseId}}/top-products",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -196,7 +252,7 @@
 					"path": [
 						"api",
 						"franchise",
-						"1",
+						"{{franchiseId}}",
 						"top-products"
 					]
 				}
@@ -221,7 +277,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/api/franchise/1/products",
+					"raw": "http://localhost:8080/api/franchise/{{franchiseId}}/products",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -230,7 +286,7 @@
 					"path": [
 						"api",
 						"franchise",
-						"1",
+						"{{franchiseId}}",
 						"products"
 					]
 				}
